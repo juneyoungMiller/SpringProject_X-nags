@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd" >
+<configuration>
+
+   <settings><!-- value 에 NULL 은 무조건 대문자로 -->
+      <setting name="jdbcTypeForNull" value="NULL" />
+   </settings>
+
+   <typeAliases>
+   	<typeAlias type="com.kh.spring.member.model.vo.Member" alias="Member" />
+    <typeAlias type="com.kh.spring.community.model.vo.Board" alias="Board" /> 
+    <typeAlias type="com.kh.spring.mail.model.vo.Mail" alias="Mail"/>
+    <typeAlias type="com.kh.spring.employee.model.vo.Employee" alias="Employee"/>
+    <typeAlias type="com.kh.spring.employee.model.vo.Job" alias="Job"/>
+    <typeAlias type="com.kh.spring.employee.model.vo.Department" alias="Department"/>
+    <typeAlias type="com.kh.spring.attendance.model.vo.Attendance" alias="Attendance"/>
+    <typeAlias type="com.kh.spring.attendance.model.vo.AttStatus" alias="AttStatus"/>
+    <typeAlias type="com.kh.spring.community.model.vo.Board_Reply" alias="Board_Reply" /> 
+    <typeAlias type="com.kh.spring.approval.model.vo.Approval" alias="Approval" /> 
+    <typeAlias type="com.kh.spring.community.model.vo.Notice" alias="Notice" /> 
+    <typeAlias type="com.kh.spring.community.model.vo.Voting" alias="Voting" /> 
+    <typeAlias type="com.kh.spring.community.model.vo.VotingA" alias="VotingA" /> 
+    <typeAlias type="com.kh.spring.community.model.vo.VotingG" alias="VotingG" /> 
+	<typeAlias type="com.kh.spring.community.model.vo.Notice_Reply" alias="Notice_Reply" /> 
+	<typeAlias type="com.kh.spring.meetingroom.model.vo.TimeTable_A" alias="TimeTable_A" /> 
+	<typeAlias type="com.kh.spring.meetingroom.model.vo.TimeTable_B" alias="TimeTable_B" />
+	<typeAlias type="com.kh.spring.meetingroom.model.vo.TimeTable_C" alias="TimeTable_C" />
+	<typeAlias type="com.kh.spring.meetingroom.model.vo.TimeTable_D" alias="TimeTable_D" />
+	<typeAlias type="com.kh.spring.meetingroom.model.vo.MeetingRoom" alias="MeetingRoom" />
+	<typeAlias type="com.kh.spring.employee.model.vo.Right" alias="Right"/>
+	<typeAlias type="com.kh.spring.employee.model.vo.SalGrade" alias="SalGrade"/>     
+	<typeAlias type="com.kh.spring.salary.model.vo.Salary" alias="Salary"/>  
+	<typeAlias type="com.kh.spring.schedule.model.vo.Schedule" alias="Schedule"/>  
+	<typeAlias type="com.kh.spring.holiday.model.vo.Holiday" alias="Holiday"/> 
+	<typeAlias type="com.kh.spring.supplies.model.vo.Supplies" alias="Supplies"/>
+	<typeAlias type="com.kh.spring.supplies.model.vo.Sitems" alias="Sitems"/>
+	<typeAlias type="com.kh.spring.supplies.model.vo.Return" alias="Return"/>
+	<typeAlias type="com.kh.spring.approval.model.vo.Outwork" alias="Outwork"/>
+   </typeAliases>
+
+
+   <mappers>
+   <mapper resource="/mappers/voting-mapper.xml" />
+   	<mapper resource="/mappers/member-mapper.xml" />
+    <mapper resource="/mappers/mail-mapper.xml"/> 
+    <mapper resource="/mappers/employee-mapper.xml"/>
+    <mapper resource="/mappers/board-mapper.xml" />
+    <mapper resource="/mappers/attendance-mapper.xml" />
+    <mapper resource="/mappers/boardReply-mapper.xml" />
+    <mapper resource="/mappers/approval-mapper.xml" />
+    <mapper resource="/mappers/notice-mapper.xml" />
+	<mapper resource="/mappers/noticeReply-mapper.xml" />
+	<mapper resource="/mappers/meetingRoom-mapper.xml" />
+	<mapper resource="/mappers/salary-mapper.xml" />
+	<mapper resource="/mappers/schedule-mapper.xml" />
+	<mapper resource="/mappers/supplies-mapper.xml" />
+	<mapper resource="/mappers/sitems-mapper.xml" />
+	
+   </mappers>
+
+
+
+
+</configuration>

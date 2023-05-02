@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="attendanceMapper">
+
+	<resultMap id="attendanceResultSet" type="Attendance">
+		<id column="ATT_NO" property="attNo"/>
+		<result column="EMP_ID" property="empId"/>
+		<result column="ATT_STATUS_NO" property="attStatusNo"/> 
+		<result column="ATT_STATUS_NAME" property="attStatusName"/>
+		<result column="ATT_DATE" property="attDate"/>
+		<result column="ATT_INTIME" property="attInTime"/>
+		<result column="ATT_OUTTIME" property="attOutTime"/>	
+		<result column="COUNT" property="count"/>
+		
+	</resultMap>
+	<resultMap id="attDateResultSet" type="Employee">
+		<id property="empId" column="EMP_ID"/>
+		<result column="DEPT_NAME" property="deptName"/>
+		<result column="JOB_NAME" property="jobName"/> 
+		<result column="USER_NAME" property="userName"/>
+		<result column="ATT_DATE" property="attDate"/>
+		<result column="ATT_INTIME" property="attInTime"/>
+		<result column="ATT_OUTTIME" property="attOutTime"/>
+		<result column="ATT_NO" property="attNo"/>
+		<result property="rightName" column="RIGHT_NAME"/>
+	</resultMap>
+	
+	<resultMap id="attStatusResultSet" type="AttStatus">
+		<id column="ATT_STATUS_NO" property="attStatusNo"/>
+		<result column="ATT_STATUS_NAME" property="attStatusName"/>			
+	</resultMap>
+
+	<resultMap type="Holiday" id="holidayResultSet">
+		<id property="holidayNo" column="HOLIDAY_NO"/>
+		<result property="appNo" column="APP_NO"/>
+		<result property="empId" column="EMP_ID"/>
+		<result property="holidayName" column="HOLIDAY_NAME"/>
+		<result property="holStartDay" column="HOL_START_DAY"/>
+		<result property="holEndDay" column="HOL_END_DAY"/>
+		<result property="holDays" column="HOL_DAYS"/>
+	</resultMap>
+	
+	<resultMap type="Outwork" id="outworkResultSet">
+		<id property="outNo" column="OUTWORK_NO"/>
+		<result property="appNo" column="APP_NO"/>
+		<result property="empId" column="EMP_ID"/>
+		<result property="outDate" column="OW_DATE"/>
+	</resultMap>
+	
+	<select id="selectAttStatus" resultMap="attStatusResultSet">
+		SELECT * FROM ATT_STATUS	
+	</select>
+	
+	<insert id="insertAllEmp" parameterType="string">
+		insert into attendance (ATT_NO, EMP_ID, ATT_DATE)
+		values(SEQ_ATNO.nextval,#{empId},TO_CHAR(SYSDATE,'YYYY-MM-DD'))
+	</insert>
+
+	<insert id="updateIntime" parameterType="Employee">
+		update attendance set
+		ATT_INTIME = TO_CHAR(SYSDATE,'hh24:MI:SS')
+		WHERE EMP_ID= #{empId} and TO_CHAR(SYSDATE, 'YYYY-MM-DD') = ATT_DATE
+	</insert>
+	
+	<update id="updateOuttime" parameterType="Employee">
+		update attendance set
+		ATT_OUTTIME = TO_CHAR(SYSDATE,'hh24:MI:SS')
+		WHERE EMP_ID= #{empId} and TO_CHAR(SYSDATE, 'YYYY-MM-DD') = ATT_DATE
+	</update>
+	
+	<select id="selectTime" parameterType="Employee" resultMap="attendanceResultSet">
+		SELECT * FROM ATTENDANCE 
+		WHERE EMP_ID=#{empId} and TO_CHAR(SYSDATE, 'YYYY-MM-DD')=ATT_DATE
+	</select>
+	
+	<select id="selectAttMy" parameterType="Member" resultMap="attendanceResultSet">
+		SELECT ATT_NO, EMP_ID, ATT_STATUS_NO,ATT_STATUS_NAME, ATT_DATE, ATT_INTIME, ATT_OUTTIME
+		FROM ATTENDANCE 
+		JOIN ATT_STATUS USING (ATT_STATUS_NO)
+		WHERE EMP_ID=#{empId}
+		ORDER BY ATT_DATE 
+	</select>
+
+	<select id="selectAttDay" parameterType="Attendance" resultMap="attDateResultSet">
+		SELECT EMP_ID, DEPT_NAME, JOB_NAME, USER_NAME, ATT_NO ,ATT_DATE, ATT_INTIME, ATT_OUTTIME, RIGHT_NAME
+		FROM EMPLOYEE 
+		JOIN JOB USING (JOB_CODE)
+		JOIN DEPARTMENT USING (DEPT_CODE)
+	    JOIN MEMBER USING (EMP_ID)
+	    JOIN ATTENDANCE USING (EMP_ID)
+	    JOIN RIGHT USING (RIGHT_NO)
+		WHERE ATT_DATE = #{attDate}
+	    AND ATT_STATUS_NO =#{attStatusNo} 
+	    <if test="orderBy.equals('dept_code')">
+	    	ORDER BY DEPT_CODE, ATT_DATE
+	    </if>
+	    <if test="orderBy.equals('job_code')">
+	    	ORDER BY JOB_CODE, ATT_DATE
+	    </if>
+	</select> 
+	<select id="selectAttMonth" parameterType="Attendance" resultMap="attDateResultSet">
+		SELECT EMP_ID, DEPT_NAME, JOB_NAME, USER_NAME, ATT_NO ,ATT_DATE, ATT_INTIME, ATT_OUTTIME, RIGHT_NAME
+		FROM EMPLOYEE 
+		JOIN JOB USING (JOB_CODE)
+		JOIN DEPARTMENT USING (DEPT_CODE)
+	    JOIN MEMBER USING (EMP_ID)
+	    JOIN ATTENDANCE USING (EMP_ID)
+		JOIN RIGHT USING (RIGHT_NO)
+		WHERE ATT_DATE like '%' ||  #{attMonthDate} || '%'
+	    AND ATT_STATUS_NO =#{attStatusNo} 
+	    <if test="orderBy.equals('dept_code')">
+	    	ORDER BY DEPT_CODE, ATT_DATE
+	    </if>
+	    <if test="orderBy.equals('job_code')">
+	    	ORDER BY JOB_CODE, ATT_DATE
+	    </if>
+	</select>
+	
+	<update id="updateDay" parameterType="Employee" >
+		update attendance set
+		ATT_INTIME = #{attInTime},
+		ATT_OUTTIME = #{attOutTime}
+		WHERE EMP_ID= #{empId} and  ATT_NO = #{attNo}
+	</update>
+	
+	<delete id="deleteDay" parameterType="_int">
+		delete from attendance where ATT_NO=#{attNo}
+	</delete>
+	
+	<update id="updateMonth" parameterType="Employee" >
+		update attendance set
+		ATT_INTIME = #{attInTime},
+		ATT_OUTTIME = #{attOutTime}
+		WHERE EMP_ID= #{empId} and  ATT_NO = #{attNo}
+	</update>
+	
+	<delete id="deleteMonth" parameterType="_int">
+		delete from attendance where ATT_NO=#{attNo}
+	</delete>
+	
+	<update id="updateStatus" parameterType="Attendance" >
+		update attendance set
+		ATT_STATUS_NO = #{attStatusNo}
+		WHERE EMP_ID= #{empId} and  ATT_NO = #{attNo}
+	</update>
+	
+	<select id="selectHoliday" parameterType="string" resultMap="holidayResultSet">
+		SELECT * FROM HOLIDAY
+		WHERE EMP_ID=#{empId} 
+	</select>
+	
+	<insert id="insertAnnual" parameterType="Attendance">
+		insert into attendance
+		values(SEQ_ATNO.nextval,#{empId},#{attStatusNo},#{attDate},#{attInTime},#{attOutTime})
+	</insert>
+	
+	<select id="selectAbsence" resultMap="attendanceResultSet">
+		select * from attendance
+		WHERE ATT_INTIME IS NULL OR ATT_OUTTIME IS NULL
+		order by att_date
+	</select>
+	
+	<select id="selectOutwork" parameterType="string" resultMap="outworkResultSet">
+		select * from OUTWORK
+		WHERE EMP_ID=#{empId} AND TO_CHAR(OW_DATE, 'YYYY-MM-DD') = TO_CHAR(SYSDATE, 'YYYY-MM-DD')
+	</select>
+
+	<update id="updateOutwork" parameterType="Attendance" >
+		update attendance set
+		ATT_STATUS_NO =#{attStatusNo},
+		ATT_INTIME = #{attInTime},
+		ATT_OUTTIME = #{attOutTime}		
+		WHERE EMP_ID= #{empId} and  ATT_DATE = #{attDate}
+	</update>
+	
+	<update id="updateHalfway" parameterType="Attendance" >
+		update attendance set
+		ATT_STATUS_NO =#{attStatusNo},		
+		ATT_OUTTIME = #{attOutTime}		
+		WHERE EMP_ID= #{empId} and  ATT_DATE = #{attDate}
+	</update>
+	
+	<update id="updateAnnual" parameterType="Attendance" >
+		update attendance set
+		ATT_STATUS_NO =#{attStatusNo},
+		ATT_INTIME = #{attInTime},		
+		ATT_OUTTIME = #{attOutTime}		
+		WHERE EMP_ID= #{empId} and  ATT_DATE = #{attDate}
+	</update>
+
+	<select id="attCountList" parameterType="string" resultMap="attendanceResultSet">
+		SELECT A.ATT_STATUS_NAME, count(B.ATT_STATUS_NO) AS COUNT
+		FROM ATT_STATUS A LEFT OUTER JOIN (
+		                                    SELECT ATT_STATUS_NO
+		                                     FROM ATTENDANCE 
+		                                    WHERE EMP_ID =#{empId}
+		                                   ) B on (A.ATT_STATUS_NO = B.ATT_STATUS_NO)
+		GROUP BY A.ATT_STATUS_NO, A.ATT_STATUS_NAME
+		ORDER BY A.ATT_STATUS_NO
+	</select>
+</mapper>

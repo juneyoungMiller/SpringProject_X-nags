@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="mRoomsMapper">
+
+
+
+	<resultMap id="TAResultSet" type="TimeTable_A">
+		<id property="taNo" column="TANO"/>
+		<result property="mrNo" column="MR_NO"/>
+		<result property="time" column="TIME"/>
+		<result property="status" column="STATUS"/>
+	</resultMap>
+	
+	<resultMap id="TBResultSet" type="TimeTable_B">
+		<id property="tbNo" column="TBNO"/>
+		<result property="mrNo" column="MR_NO"/>
+		<result property="time" column="TIME"/>
+		<result property="status" column="STATUS"/>
+	</resultMap>
+	
+	<resultMap id="TCResultSet" type="TimeTable_C">
+		<id property="tcNo" column="TCNO"/>
+		<result property="mrNo" column="MR_NO"/>
+		<result property="time" column="TIME"/>
+		<result property="status" column="STATUS"/>
+	</resultMap>
+	
+	<resultMap id="TDResultSet" type="TimeTable_D">
+		<id property="tdNo" column="TDNO"/>
+		<result property="mrNo" column="MR_NO"/>
+		<result property="time" column="TIME"/>
+		<result property="status" column="STATUS"/>
+	</resultMap>
+	
+	<resultMap id="MrResultSet" type="MeetingRoom">
+		<id property="mroomNo" column="MROOM_NO"/>
+		<result property="mrNo" column="MR_NO"/>
+		<result property="empId" column="EMP_ID"/>
+		<result property="time" column="TIME"/>
+		<result property="status" column="STATUS"/>
+		<result property="str" column="STR"/>
+	</resultMap>
+	
+
+
+	
+ <select id="selectTimeTableA" parameterType="TimeTable_A" resultMap="TAResultSet">
+  SELECT * FROM TIMETABLE_A
+ </select>
+ 
+ <select id="selectTimeTableB" parameterType="TimeTable_B" resultMap="TBResultSet">
+  SELECT * FROM TIMETABLE_B
+ </select>
+ 
+ <select id="selectTimeTableC" parameterType="TimeTable_C" resultMap="TCResultSet">
+  SELECT * FROM TIMETABLE_C
+ </select>
+ 
+ <select id="selectTimeTableD" parameterType="TimeTable_D" resultMap="TDResultSet">
+  SELECT * FROM TIMETABLE_D
+ </select>
+ 
+ <!-- 회의실 1 -->
+ <insert id="insertMeetingA" parameterType="MeetingRoom">
+ INSERT INTO MEETING_ROOM
+ VALUES(SEQ_MRNO.NEXTVAL, #{mrNo}, #{empId}, #{time}, default)
+ </insert>
+ 
+ <!-- 회의실 1 -->
+ <update id="updateStatusA" parameterType="String">
+	 UPDATE TIMETABLE_A SET STATUS = 'N'
+	 WHERE TIME = #{time}
+ </update>
+ 
+ <!-- 회의실 2 -->
+ <insert id="insertMeetingB" parameterType="MeetingRoom">
+ INSERT INTO MEETING_ROOM
+ VALUES(SEQ_MRNO.NEXTVAL, #{mrNo}, #{empId}, #{time}, default)
+ </insert>
+ 
+ <!-- 회의실 2 -->
+ <update id="updateStatusB" parameterType="String">
+	 UPDATE TIMETABLE_B SET STATUS = 'N'
+	 WHERE TIME = #{time}
+ </update>
+ 
+ 
+ <!-- 회의실 3 -->
+ <insert id="insertMeetingC" parameterType="MeetingRoom">
+ INSERT INTO MEETING_ROOM
+ VALUES(SEQ_MRNO.NEXTVAL, #{mrNo}, #{empId}, #{time}, default)
+ </insert>
+ 
+ <!-- 회의실 3 -->
+ <update id="updateStatusC" parameterType="String">
+	 UPDATE TIMETABLE_C SET STATUS = 'N'
+	 WHERE TIME = #{time}
+ </update>
+ 
+ 
+  <!-- 회의실 4 -->
+ <insert id="insertMeetingD" parameterType="MeetingRoom">
+ INSERT INTO MEETING_ROOM
+ VALUES(SEQ_MRNO.NEXTVAL, #{mrNo}, #{empId}, #{time}, default)
+ </insert>
+ 
+ <!-- 회의실 4 -->
+ <update id="updateStatusD" parameterType="String">
+	 UPDATE TIMETABLE_D SET STATUS = 'N'
+	 WHERE TIME = #{time}
+ </update>
+
+<select id="reservedMeeting" parameterType="MeetingRoom" resultMap="MrResultSet">
+ <![CDATA[
+SELECT distinct MR_NO,
+   REGEXP_SUBSTR(STR, '[^,]+', 1, LEVEL) AS STR
+FROM (SELECT MR_NO, TIME AS STR
+   FROM MEETING_ROOM WHERE EMP_ID = #{empId} AND STATUS ='Y' ) 
+ CONNECT BY LEVEL <= LENGTH(REGEXP_REPLACE(STR, '[^,]+'))+1
+ ORDER BY MR_NO ASC
+]]> 
+
+</select>
+
+<select id="meetingDetail" parameterType="MeetingRoom" resultMap="MrResultSet">
+ SELECT  distinct * FROM MEETING_ROOM WHERE EMP_ID = #{empId} AND STATUS ='Y' ORDER BY MR_NO ASC
+</select>
+
+<update id="cancelMeeting" parameterType="_int">
+ UPDATE MEETING_ROOM SET STATUS ='N' WHERE MROOM_NO = #{mroomNo}
+</update>
+
+<update id="cancelMeetingA" parameterType="String">
+ UPDATE TIMETABLE_A SET STATUS = 'Y'
+	 WHERE TIME = #{time}
+</update>
+
+<update id="cancelMeetingB" parameterType="String">
+ UPDATE TIMETABLE_B SET STATUS = 'Y'
+	 WHERE TIME = #{time}
+</update>
+
+<update id="cancelMeetingC" parameterType="String">
+ UPDATE TIMETABLE_C SET STATUS = 'Y'
+	 WHERE TIME = #{time}
+</update>
+
+<update id="cancelMeetingD" parameterType="String">
+ UPDATE TIMETABLE_D SET STATUS = 'Y'
+	 WHERE TIME = #{time}
+</update>
+
+<update id="resetA" parameterType="TimeTable_A" >
+ UPDATE TIMETABLE_A SET STATUS ='Y'
+</update>
+
+<update id="resetB" parameterType="TimeTable_B" >
+ UPDATE TIMETABLE_B SET STATUS ='Y'
+</update>
+
+<update id="resetC" parameterType="TimeTable_C" >
+ UPDATE TIMETABLE_C SET STATUS ='Y'
+</update>
+
+<update id="resetD" parameterType="TimeTable_D" >
+ UPDATE TIMETABLE_D SET STATUS ='Y'
+</update>
+
+<update id="resetAll" parameterType="MeetingRoom" >
+ UPDATE MEETING_ROOM SET STATUS ='N'
+</update>
+	
+</mapper>

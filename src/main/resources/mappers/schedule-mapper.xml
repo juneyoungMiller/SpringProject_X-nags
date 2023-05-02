@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="scheduleMapper">
+
+	<resultMap id="scheduleResultSet" type="Schedule">
+		<id property="scheduleNo" column="SCHEDULE_NO"/>
+		<result property="empId" column="EMP_ID"/>
+		<result property="scheduleTitle" column="SCHEDULE_TITLE"/>
+		<result property="scheduleStart" column="SCHEDULE_START"/>
+		<result property="scheduleEnd" column="SCHEDULE_END"/>
+		<result property="scheduleDescription" column="SCHEDULE_DESCRIPTION"/>
+		<result property="scheduleTypeNo" column="SCHEDULE_TYPE_NO"/>
+		<result property="scheduleBackground" column="SCHEDULE_BACKGROUNDCOLOR"/>
+		<result property="scheduleAllDay" column="SCHEDULE_ALLDAY"/>
+		<result property="userName" column="USER_NAME"/>
+		<result property="deptName" column="DEPT_NAME"/>
+	</resultMap>
+	
+		<resultMap id="empResultSet" type="Employee">
+		<id property="empId" column="EMP_ID"/>
+		</resultMap>
+	
+	<resultMap type="schedule" id="scheduleListResultSet">
+		<id property="empId" column="EMP_ID"/>
+		<result property="scheduleTitle" column="SCHEDULE_TITLE"/>
+		<result property="scheduleStart" column="SCHEDULE_START"/>
+		<result property="scheduleEnd" column="SCHEDULE_END"/>
+	</resultMap>
+	
+	<!-- 일정조회 -->
+	<select id="scheduleMain" parameterType="java.util.Map" resultType="com.kh.spring.schedule.model.vo.Schedule">
+		<![CDATA[ 
+			SELECT 
+		        SCHEDULE_NO AS scheduleNo,
+		        EMP_ID AS empId,
+		        SCHEDULE_TITLE AS scheduleTitle,
+		        SCHEDULE_START AS scheduleStart,
+		        SCHEDULE_END AS scheduleEnd,
+		        SCHEDULE_DESCRIPTION AS scheduleDescription,
+		        SCHEDULE_TYPE AS scheduleType,
+		        SCHEDULE_BACKGROUNDCOLOR AS scheduleBackground,
+		        SCHEDULE_TEXTCOLOR AS scheduleTextcolor,
+		        SCHEDULE_ALLDAY AS scheduleAllDay
+			FROM 
+		        SCHEDULE
+			WHERE 
+		        1 = 1
+		        AND EMP_ID = #{empId}
+		   		AND SCHEDULE_START >= #{scheduleStart}
+		        AND SCHEDULE_END < #{scheduleEnd}
+	        ]]> 
+	</select>
+	
+	<!-- 일정등록 -->
+	<insert id="insertSchedule" parameterType="Schedule" >
+		INSERT INTO SCHEDULE
+		VALUES (SCHEDULE_NO.NEXTVAL, #{empId}, #{scheduleTitle}, #{scheduleStart}, #{scheduleEnd}, #{scheduleDescription}, 
+		#{scheduleType}, #{scheduleBackground},#{scheduleTextcolor} , #{scheduleAllDay})	
+	</insert>
+	
+	<!-- 일정수정 -->
+	<insert id="updateSchedule" parameterType="Schedule" >
+		UPDATE 
+			SCHEDULE
+		SET 
+			EMP_ID = #{empId},
+			SCHEDULE_TITLE = #{scheduleTitle},
+			SCHEDULE_START =  #{scheduleStart},
+			SCHEDULE_END =  #{scheduleEnd},
+			SCHEDULE_DESCRIPTION =  #{scheduleDescription}, 
+			SCHEDULE_TYPE = #{scheduleType}, 
+			SCHEDULE_BACKGROUNDCOLOR = #{scheduleBackground},
+			SCHEDULE_TEXTCOLOR = #{scheduleTextcolor},
+			SCHEDULE_ALLDAY =  #{scheduleAllDay}
+		WHERE
+			1 = 1
+		AND 
+			SCHEDULE_NO = #{scheduleNo}
+	</insert>
+	
+	<!-- 일정삭제 -->
+	<insert id="deleteSchedule" parameterType="Schedule" >
+		DELETE FROM SCHEDULE WHERE SCHEDULE_NO = #{scheduleNo}
+	</insert>
+
+	<!-- 메인페이지 오늘일정조회 -->
+	<select id="scheduleList" resultMap="scheduleListResultSet">
+		<![CDATA[ 	
+			SELECT  
+                SCHEDULE_TITLE,
+		      	SCHEDULE_START,
+		        SCHEDULE_END
+			FROM 
+		        SCHEDULE
+			WHERE 
+		        1 = 1
+                AND EMP_ID = #{empId}
+		        AND SUBSTR(SCHEDULE_START,1,10) <= TO_CHAR(SYSDATE, 'YYYY-MM-DD')
+		        AND SUBSTR(SCHEDULE_END,1,10) >= TO_CHAR(SYSDATE, 'YYYY-MM-DD')
+		        ORDER BY SCHEDULE_START DESC
+		]]> 
+	</select>
+	
+	<!-- 일정 리사이즈 -->
+	<insert id="resizeUpdateSchedule" parameterType="Schedule" >
+		UPDATE 
+			SCHEDULE
+		SET 
+			SCHEDULE_START =  #{scheduleStart},
+			SCHEDULE_END =  #{scheduleEnd}
+		WHERE
+			1 = 1
+		AND 
+			SCHEDULE_NO = #{scheduleNo}
+	</insert>
+	
+	<!-- 일정 드롭 -->
+	<insert id="dropUpdateSchedule" parameterType="Schedule" >
+		UPDATE 
+			SCHEDULE
+		SET 
+			SCHEDULE_START =  #{scheduleStart},
+			SCHEDULE_END =  #{scheduleEnd}
+		WHERE
+			1 = 1
+		AND 
+			SCHEDULE_NO = #{scheduleNo}
+	</insert>
+	
+</mapper>

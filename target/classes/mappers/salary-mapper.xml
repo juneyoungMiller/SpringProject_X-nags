@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="salaryMapper">
+
+	<resultMap id="salaryResultSet" type="Salary">
+		<id property="salLevel" column="SAL_LEVEL"/>
+		<result property="empId" column="EMP_ID"/>
+		<result property="basic" column="BASIC"/>
+		<result property="commission" column="COMMISSION"/>
+		<result property="meal" column="MEAL"/>
+		<result property="total" column="TOTAL"/>
+		<result property="incomeTax" column="INCOME_TAX"/>
+		<result property="empInsurance" column="EMP_INSURANCE"/>
+		<result property="retirement" column="RETIREMENT"/>
+		<result property="healthInsurance" column="HEALTH_INSURANCE"/>
+		<result property="inTotal" column="IN_TOTAL"/>
+		<result property="subTotal" column="SUB_TOTAL"/>
+	</resultMap>
+	
+
+
+
+	
+	 <insert id="insertSal" parameterType="Salary" >
+	insert into salary
+	values (SEQ_SALNO.NEXTVAL, #{salLevel}, RPAD(to_number(to_char(SYSDATE, 'yymmdd')),9,SEQ_EMP_ID.CURRVAL), #{basic}, #{commission},#{meal},#{total},#{incomeTax},#{empInsurance},#{retirement},#{healthInsurance},#{inTotal},#{subTotal})	
+	</insert>
+
+	<select id="selectSal" parameterType="_int" resultMap="salaryResultSet">
+
+
+    SELECT S.EMP_ID,S.BASIC, S.COMMISSION, S.MEAL, S.TOTAL, S.INCOME_TAX, S.EMP_INSURANCE, S.RETIREMENT,  S.HEALTH_INSURANCE, S.IN_TOTAL,  S.SUB_TOTAL
+
+	FROM SALARY S
+	WHERE S.EMP_ID = #{empId}
+	
+	</select>
+	
+	
+
+<update id="updateSal" parameterType="Salary" >
+	update Salary set
+	SAL_LEVEL = #{salLevel}, BASIC = #{basic}, COMMISSION = #{commission}, MEAL = #{meal},
+	TOTAL = #{total}, INCOME_TAX = #{incomeTax},
+	EMP_INSURANCE = #{empInsurance}, RETIREMENT = #{retirement},
+	HEALTH_INSURANCE = #{healthInsurance}, IN_TOTAL = #{inTotal},
+	SUB_TOTAL = #{subTotal}
+	WHERE EMP_ID = #{empId}
+	
+	</update>
+
+	
+	<!-- <update id="updateSal" parameterType="Salary" >
+	update Salary set
+	SAL_LEVEL = #{salLevel}, BASIC = TO_NUMBER(#{basic}), COMMISSION = TO_NUMBER(#{commission}), MEAL = TO_NUMBER(#{meal}),
+	TOTAL = TO_NUMBER(#{total}), INCOME_TAX = TO_NUMBER(#{incomeTax}),
+	EMP_INSURANCE = TO_NUMBER(#{empInsurance}), RETIREMENT = TO_NUMBER(#{retirement}) ,
+	HEALTH_INSURANCE =TO_NUMBER(#{healthInsurance}) , IN_TOTAL = TO_NUMBER(#{inTotal}),
+	SUB_TOTAL = TO_NUMBER(#{subTotal})
+	WHERE EMP_ID = #{empId}
+	
+	</update> -->
+	
+	
+	
+</mapper>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="suppliesMapper">
+
+	<resultMap id="SuppliesResultSet" type="Supplies">
+		<id property="suppliesNo" column="SUPPLIES_NO"/>
+		<result property="suppliesCode" column="SUPPLIES_CODE"/>
+		<result property="empId" column="EMP_ID"/>
+		<result property="suppliesName" column="SUPPLIES_NAME"/>
+		<result property="counts" column="COUNT"/>
+		<result property="startDate" column="START_DATE"/>
+		<result property="endDate" column="END_DATE"/>
+		<result property="status" column="STATUS"/>
+		
+	</resultMap>
+	
+	
+	<resultMap id="ReturnResultSet" type="Return">
+		<id property="reNo" column="RENO"/>
+		<result property="suppliesNo" column="SUPPLIES_NO"/>
+		<result property="suppliesCode" column="SUPPLIES_CODE"/>
+		<result property="empId" column="EMP_ID"/>
+		<result property="suppliesName" column="SUPPLIES_NAME"/>
+		<result property="counts" column="COUNT"/>
+		<result property="startDate" column="START_DATE"/>
+		<result property="endDate" column="END_DATE"/>
+		<result property="status" column="STATUS"/>
+		
+		<result property="userName" column="USER_NAME"/>
+		
+	</resultMap>
+	
+
+
+  <insert id="insertSupplies" parameterType="java.util.ArrayList">
+
+        INSERT INTO SUPPLIES
+		values(SEQ_SUPNO.NEXTVAL, #{suppliesCode}, #{empId}, #{suppliesName}, 
+		#{counts}, #{startDate}, #{endDate}, default)
+
+</insert>  
+
+<insert id="insertCode" parameterType="java.util.ArrayList">
+        INSERT INTO RETURN_LIST(
+         RENO
+		,SUPPLIES_NO
+		,SUPPLIES_CODE
+		,EMP_ID
+		,SUPPLIES_NAME
+		,COUNT
+		,START_DATE
+		,END_DATE
+		,STATUS
+		)
+       
+        values
+         <foreach collection="list" item="item"
+         separator=" ">
+        
+        (
+        SEQ_RENO.NEXTVAL
+        ,SEQ_SUPNO.CURRVAL
+        ,#{item.suppliesCode}
+        ,#{item.empId}
+        ,#{item.suppliesName}
+        ,#{item.counts}
+        ,#{item.startDate}
+        ,#{item.endDate}
+        ,default
+        )
+       
+ </foreach>
+
+</insert>
+
+	<select id="updateForm" parameterType="_int" resultMap="ReturnResultSet">
+	SELECT * FROM RETURN_LIST WHERE EMP_ID=#{empId} AND STATUS = 'Y'
+	
+	</select>
+	
+	<!-- myPage 로 갈땐 empId String -->
+	<select id="updateForm2" parameterType="String" resultMap="ReturnResultSet">
+	SELECT * FROM RETURN_LIST WHERE EMP_ID=#{empId} AND STATUS = 'Y'
+	</select>
+
+
+	<select id="selectReSuplist" parameterType="Return" resultMap="ReturnResultSet">
+	SELECT R.RENO, R.SUPPLIES_NO, R.SUPPLIES_CODE, R.EMP_ID, M.USER_NAME, R.SUPPLIES_NAME,
+	R.COUNT, R.START_DATE, R.END_DATE, R.STATUS FROM RETURN_LIST R
+	JOIN MEMBER M ON M.EMP_ID = R.EMP_ID
+	 ORDER BY RENO DESC
+	</select>
+	
+
+	<update id="updateSupplies" parameterType="Return">
+	UPDATE RETURN_LIST SET
+	END_DATE = #{endDate} WHERE RENO = #{reNo}
+	</update>
+	
+	<update id="returnSup" parameterType="_int" >
+	UPDATE RETURN_LIST SET STATUS='N' WHERE RENO = #{reNo}
+	</update>
+	
+	<select id="selectListCount" resultType="_int">
+	SELECT COUNT(*)
+	FROM RETURN_LIST
+	</select>
+	
+	
+	<select id="mySupList" parameterType="String" resultMap="SuppliesResultSet">
+	SELECT * FROM SUPPLIES WHERE EMP_ID=#{empId} AND STATUS = 'Y'
+	</select>
+	
+</mapper>

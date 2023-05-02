@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+ 
+<mapper namespace="approvalMapper">
+	   
+	<resultMap type="Approval" id="appResultSet">
+		<id column="APP_NO" property="appNo"/>
+		<result column="EMP_ID" property="empId"/>
+		<result column="CATEGORY" property="category"/>
+		<result column="APP_MID" property="appMid"/> 
+		<result column="APP_FIN" property="appFin"/>
+		<result column="MID_STATUS" property="midStatus"/>
+		<result column="FIN_STATUS" property="finStatus"/>
+		<result column="APP_TITLE" property="title"/>
+		<result column="APP_CONTENT" property="content"/>
+		<result column="WRITE_DATE" property="writeDate"/>
+		<result column="START_DATE" property="stayDate"/>
+		<result column="END_DATE" property="endDate"/>
+		<result column="MID_REPLY" property="midReply"/>
+		<result column="FIN_REPLY" property="finReply"/>
+		<result column="ORIGIN_NAME" property="originName"/>
+		<result column="CHANGE_NAME" property="changeName"/>
+	</resultMap>
+	
+	<resultMap type="Approval" id="appAskResultSet">
+		<id column="APP_NO" property="appNo"/>
+		<result column="USER_NAME" property="empId"/>
+		<result column="CATEGORY" property="category"/>
+		<result column="APP_MID" property="appMid"/> 
+		<result column="APP_FIN" property="appFin"/>
+		<result column="MID_STATUS" property="midStatus"/>
+		<result column="FIN_STATUS" property="finStatus"/>
+		<result column="APP_TITLE" property="title"/>
+		<result column="APP_CONTENT" property="content"/>
+		<result column="WRITE_DATE" property="writeDate"/>
+		<result column="START_DATE" property="stayDate"/>
+		<result column="END_DATE" property="endDate"/>
+		<result column="MID_REPLY" property="midReply"/>
+		<result column="FIN_REPLY" property="finReply"/>
+		<result column="ORIGIN_NAME" property="originName"/>
+		<result column="CHANGE_NAME" property="changeName"/>
+	</resultMap>
+	
+	<resultMap id="employeeResultSet" type="Employee">
+		<id property="empId" column="EMP_ID"/>
+		<result property="jobName" column="JOB_NAME"/>
+		<result property="userName" column="USER_NAME"/>
+		<result property="deptName" column="DEPT_NAME"/>
+	</resultMap>
+	
+	<resultMap type="Holiday" id="holidayResultSet">
+		<id property="holidayNo" column="HOLIDAY_NO"/>
+		<result property="appNo" column="APP_NO"/>
+		<result property="empId" column="EMP_ID"/>
+		<result property="holidayName" column="HOLIDAY_NAME"/>
+		<result property="holStartDay" column="HOL_START_DAY"/>
+		<result property="holEndDay" column="HOL_END_DAY"/>
+		<result property="holDays" column="HOL_DAYS"/>
+	</resultMap>
+
+	<resultMap type="Outwork" id="outworkResultSet">
+		<id property="outNo" column="OUTWORK_NO"/>
+		<result property="appNo" column="APP_NO"/>
+		<result property="empId" column="EMP_ID"/>
+		<result property="outDate" column="OW_DATE"/>
+	</resultMap>
+
+	
+	<!-- 결재 전송 -->
+	<insert id="insertApproval" parameterType="Approval">
+		INSERT INTO APPROVAL
+		VALUES
+		(SEQ_ANO.NEXTVAL, #{empId}, #{category}, #{appMid}, #{appFin}, default,  default,
+	 	#{title}, #{content}, sysdate, #{stayDate}, #{endDate}, NULL, NULL, #{originName}, #{changeName})
+
+	</insert>
+	
+	<!-- 진행중 결재함 수 -->
+	<select id="selectApprovalListCount" resultType="_int">
+		SELECT COUNT(*)
+		FROM APPROVAL
+		WHERE EMP_ID=#{empId}
+		AND FIN_STATUS=1 AND MID_STATUS IN (1,2)
+		ORDER BY APP_NO DESC
+	</select>
+	
+	<!-- 진행중 결재함 리스트 -->
+	<select id="selectApprovalList" resultMap="appResultSet">
+		SELECT *
+		FROM APPROVAL
+		WHERE EMP_ID=#{empId}
+		AND FIN_STATUS=1 AND MID_STATUS IN (1,2)
+		ORDER BY APP_NO DESC
+	</select>
+	
+	<!-- 진행중 결재함 보기 -->
+	<select id="selectApprovalDetail" parameterType="_int" resultMap="appResultSet">
+		SELECT *
+		FROM APPROVAL
+		WHERE APP_NO=${ano}
+	</select>
+	
+	<!-- 요청 결재함 수 -->
+	<select id="selectAskApprovalListCount" resultType="_int">
+		SELECT COUNT(*)
+		FROM APPROVAL
+		WHERE 
+		(APP_MID=${empId} OR APP_FIN=${empId})
+		AND FIN_STATUS=1 AND MID_STATUS IN (1,2)
+	</select>
+	
+	<!-- 요청 결재함 리스트 -->
+	<select id="selectAskApprovalList" resultMap="appAskResultSet">
+		SELECT *
+		FROM APPROVAL A
+		JOIN MEMBER B ON A.EMP_ID=B.EMP_ID
+		WHERE 
+		(APP_MID=${empId} OR APP_FIN=${empId})
+		AND A.FIN_STATUS=1 AND MID_STATUS IN (1,2)
+		ORDER BY A.APP_NO DESC
+	</select>
+	
+	<!-- 요청 결재함 보기 -->
+	<select id="selectAskApprovalDetail" parameterType="_int" resultMap="appResultSet">
+		SELECT *
+		FROM APPROVAL
+		WHERE APP_NO=${ano}
+	</select>
+	
+	<!-- 기안자정보  -->
+	<select id="selectAppWriter" parameterType="String" resultMap="employeeResultSet">
+		SELECT USER_NAME, EMP_ID, JOB_NAME, DEPT_NAME
+		FROM EMPLOYEE 
+		JOIN MEMBER USING (EMP_ID)
+		JOIN JOB USING (JOB_CODE)
+		JOIN DEPARTMENT USING (DEPT_CODE) 
+		WHERE EMP_ID=#{empId}
+	</select>
+	
+	<!-- 중간결재자정보  -->
+	<select id="selectAppMid" parameterType="String" resultMap="employeeResultSet">
+		SELECT USER_NAME, EMP_ID, JOB_NAME, DEPT_NAME
+		FROM EMPLOYEE 
+		JOIN MEMBER USING (EMP_ID)
+		JOIN JOB USING (JOB_CODE)
+		JOIN DEPARTMENT USING (DEPT_CODE) 
+		WHERE EMP_ID=#{empId}
+	</select>
+	
+	<!-- 최종결재자정보  -->
+	<select id="selectAppFin" parameterType="String" resultMap="employeeResultSet">
+		SELECT USER_NAME, EMP_ID, JOB_NAME, DEPT_NAME
+		FROM EMPLOYEE 
+		JOIN MEMBER USING (EMP_ID)
+		JOIN JOB USING (JOB_CODE)
+		JOIN DEPARTMENT USING (DEPT_CODE) 
+		WHERE EMP_ID=#{empId}
+	</select>
+	
+	<!-- 중간결재승인 -->
+	<update id="midConfirm" parameterType="Approval">
+		UPDATE APPROVAL
+		SET MID_REPLY=#{midReply}, MID_STATUS=2
+		WHERE APP_NO=#{appNo}
+	</update>
+	
+	<!-- 중간결재반려 -->
+	<update id="midReject" parameterType="Approval">
+		UPDATE APPROVAL
+		SET MID_REPLY=#{midReply}, MID_STATUS=3
+		WHERE APP_NO=#{appNo}
+	</update>
+	
+	<!-- 휴가추가 -->
+	<insert id="insertHoliDay" parameterType="Holiday">
+		INSERT INTO HOLIDAY
+		VALUES
+		(SEQ_HNO.NEXTVAL, #{appNo}, #{empId}, #{holidayName}, #{holStartDay}, #{holEndDay}, #{holDays})
+		
+	</insert>
+	
+	<!-- 최종결재승인 -->
+	<update id="finConfirm" parameterType="Approval">
+		UPDATE APPROVAL
+		SET FIN_REPLY=#{finReply}, FIN_STATUS=2
+		WHERE APP_NO=#{appNo}
+	</update>
+	
+	<!-- 최종결재반려 -->
+	<update id="finReject" parameterType="Approval">
+		UPDATE APPROVAL
+		SET FIN_REPLY=#{finReply}, FIN_STATUS=3
+		WHERE APP_NO=#{appNo}
+	</update>
+	
+	<!-- 연차개수감소 -->
+	<update id="decreaseCount" parameterType="Holiday">
+		UPDATE EMPLOYEE
+		SET HOL_COUNT=HOL_COUNT-#{holDays}
+		WHERE EMP_ID=#{empId}
+	</update>
+
+	<!-- 진행중 문서 수정 -->
+	<update id="updateApproval" parameterType="Approval">
+		UPDATE APPROVAL
+		
+		<if test="endDate != null">
+			SET CATEGORY=#{category}, APP_TITLE=#{title}, APP_CONTENT=#{content}, APP_MID=#{appMid}, APP_FIN=#{appFin},
+			ORIGIN_NAME=#{originName}, CHANGE_NAME=#{changeName}, WRITE_DATE=SYSDATE, START_DATE=#{stayDate}, END_DATE=#{endDate}
+			
+		</if>
+		<if test="endDate == null">
+			SET CATEGORY=#{category}, APP_TITLE=#{title}, APP_CONTENT=#{content}, APP_MID=#{appMid}, APP_FIN=#{appFin},
+			ORIGIN_NAME=#{originName}, CHANGE_NAME=#{changeName}, WRITE_DATE=SYSDATE
+		</if>
+		
+		WHERE APP_NO=#{appNo}
+	
+	</update>
+	
+	<!-- 진행중 문서 삭제 -->
+	<delete id="deleteProcessingApproval" parameterType="_int">
+		DELETE APPROVAL
+		WHERE APP_NO=#{appNo}
+	</delete>
+	
+	<!-- 완료 결재함 수 -->
+	<select id="selectProcessedAppListCount" resultType="_int">
+		SELECT COUNT(*)
+		FROM APPROVAL
+		WHERE
+		(EMP_ID=${empId} OR APP_MID=${empId} OR APP_FIN=${empId})
+		AND (FIN_STATUS IN (2,3) OR MID_STATUS=3)
+	</select>
+	
+	<!-- 완료 결재함 리스트 -->
+	<select id="selectProcessedAppList" resultMap="appResultSet">
+		SELECT *
+		FROM APPROVAL
+		WHERE
+		(EMP_ID=${empId} OR APP_MID=${empId} OR APP_FIN=${empId})
+		AND (FIN_STATUS IN (2,3) OR MID_STATUS=3)
+		ORDER BY APP_NO DESC
+	</select>
+	
+	<!-- 결재완료문서보기 -->
+	<select id="selectProcessedAppDetail" parameterType="_int" resultMap="appResultSet">
+		SELECT *
+		FROM APPROVAL
+		WHERE APP_NO=${ano}
+	</select>
+	
+	<!-- 휴가정보불러오기 -->
+	<select id="selectHoliday" resultMap="holidayResultSet">
+		SELECT * FROM HOLIDAY
+		WHERE APP_NO=#{ano}
+	</select>
+	
+	<!-- 연차되돌리기 -->
+	<update id="increaseCount" parameterType="Holiday">
+		UPDATE EMPLOYEE
+		SET HOL_COUNT=HOL_COUNT+#{holDays}
+		WHERE EMP_ID=#{empId}
+	</update>
+	
+	<!-- 휴가정보삭제 -->
+	<delete id="deleteHoliday" parameterType="_int">
+		DELETE HOLIDAY
+		WHERE APP_NO=#{ano}
+	</delete>
+	
+	<!-- 결재문서 삭제 -->
+	<delete id="deleteProcessedApproval" parameterType="_int">
+		DELETE APPROVAL
+		WHERE APP_NO=#{ano}
+	</delete>
+	
+	<!-- 외근추가 -->
+	<insert id="insertOutwork">
+		INSERT INTO OUTWORK
+		VALUES
+		(OUTWORK_NO.NEXTVAL, #{appNo}, #{empId}, #{outDate})
+	</insert>
+	
+	<!-- 외근 삭제 -->
+	<delete id="deleteOutwork" parameterType="_int">
+		DELETE OUTWORK
+		WHERE APP_NO=#{ano}
+	</delete>
+	
+	<!-- 메인 진행중 결재함 리스트 -->
+	<select id="mainAppingList" resultMap="appResultSet">
+		<![CDATA[
+			SELECT *
+			FROM	
+				(SELECT *
+				FROM APPROVAL
+				WHERE EMP_ID=#{empId}
+				AND FIN_STATUS=1 AND MID_STATUS IN (1,2)
+				ORDER BY APP_NO DESC)
+			WHERE ROWNUM <= 5
+		]]>
+	</select>
+	
+	<!-- 메인 요청 결재함 -->
+	<select id="mainAppAskList" resultMap="appAskResultSet">
+		<![CDATA[
+			SELECT *
+			FROM	
+				(SELECT * 
+					FROM APPROVAL A
+					JOIN MEMBER B ON A.EMP_ID=B.EMP_ID
+					WHERE 
+					(APP_MID=${empId} OR APP_FIN=${empId})
+					AND A.FIN_STATUS=1 AND MID_STATUS IN (1,2)
+					ORDER BY A.APP_NO DESC)
+			WHERE ROWNUM <= 5
+		]]>
+	</select>
+	
+	<!-- 메인 완료 결재함 -->
+	<select id="mainAppedList" resultMap="appResultSet">
+		<![CDATA[
+			SELECT *
+			FROM	
+				(SELECT *
+				FROM APPROVAL
+				WHERE EMP_ID=#{empId}
+				AND (FIN_STATUS IN (2,3) OR MID_STATUS=3)
+				ORDER BY APP_NO DESC)
+			WHERE ROWNUM <= 5
+		]]>
+	</select>
+	
+	<!-- 메인 요청 결재함 수 -->
+	<select id="selectCountNoApp" resultType="_int">
+		SELECT COUNT(*)
+		FROM APPROVAL
+		WHERE 
+		(APP_MID=${empId} OR APP_FIN=${empId})
+		AND FIN_STATUS=1 AND MID_STATUS IN (1,2)
+	</select>
+	
+</mapper>
